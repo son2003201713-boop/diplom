@@ -34,10 +34,10 @@ export function Fundraising() {
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-serif text-xl text-ink sm:text-2xl">
             <span>
-              500 <Ruble /> помогают.
+              5 <Ruble /> помогают.
             </span>
             <span>
-              1 000 <Ruble /> помогают.
+              1 0 <Ruble /> помогают.
             </span>
           </div>
           <p className="mt-5 text-base leading-relaxed text-foreground/75 text-pretty">
