@@ -13,7 +13,7 @@ export const FILM = {
 
 export const FUNDRAISING = {
   goal: 450000,
-  raised: 0, // Держим на нуле. Не выдумываем пожертвования.
+  raised: 65, // Держим на нуле. Не выдумываем пожертвования.
   currency: "₽",
   amounts: [500, 1000, 3000, 5000, 10000],
   creditThreshold: 5000,
