@@ -34,7 +34,7 @@ export function FinalCTA() {
         <Reveal delay={120} className="mt-14 flex flex-col items-center gap-5">
           <SupportButton variant="ivory">Поддержать «Три солнца»</SupportButton>
           <p className="text-sm leading-relaxed text-linen/60 text-pretty">
-            Даже 500 ₽ становятся частью этого фильма.
+            Даже 5 ₽ становятся частью этого фильма.
           </p>
         </Reveal>
       </div>
