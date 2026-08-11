@@ -43,7 +43,39 @@ export function DonationModal() {
   if (!open) return null
 
   const activeAmount = custom ? Number(custom) : selected
+  const [paying, setPaying] = useState(false)
 
+  async function handlePayment() {
+    if (!activeAmount || activeAmount <= 0) return
+  
+    try {
+      setPaying(true)
+  
+      const response = await fetch("/api/payment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: activeAmount,
+        }),
+      })
+  
+      const data = await response.json()
+  
+      if (!response.ok || !data.confirmationUrl) {
+        alert("Не удалось открыть оплату. Попробуйте ещё раз.")
+        return
+      }
+  
+      window.location.href = data.confirmationUrl
+    } catch (error) {
+      console.error(error)
+      alert("Произошла ошибка. Попробуйте ещё раз.")
+    } finally {
+      setPaying(false)
+    }
+  }
   const bankRows: { label: string; value: string }[] = [
     { label: "Получатель", value: BANK.recipient },
     { label: "Номер счёта", value: BANK.account },
@@ -155,7 +187,18 @@ export function DonationModal() {
               имя в благодарностях в финальных титрах фильма.
             </p>
           )}
-
+<button
+  type="button"
+  onClick={handlePayment}
+  disabled={!activeAmount || paying}
+  className="mt-5 w-full rounded-md bg-thread px-5 py-4 text-sm font-semibold uppercase tracking-[0.14em] text-linen transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {paying
+    ? "Переходим к оплате..."
+    : activeAmount
+      ? `Поддержать на ${formatAmount(activeAmount)} ₽`
+      : "Выберите сумму"}
+</button>
           {/* Bank transfer expandable */}
           <div className="mt-4 overflow-hidden rounded-md border border-border">
             {/* QR donation */}
