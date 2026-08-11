@@ -17,7 +17,9 @@ export async function POST(request: Request) {
 
     const shopId = process.env.YOOKASSA_SHOP_ID
     const secretKey = process.env.YOOKASSA_SECRET_KEY
-    const databaseUrl = process.env.DATABASE_URL
+    const databaseUrl =
+  process.env.DATABASE_URL ??
+  process.env.DATABASE_URL_UNPOOLED
 
     if (!shopId || !secretKey || !databaseUrl) {
       console.error("Missing environment variables")
