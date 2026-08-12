@@ -60,7 +60,7 @@ export const PROTAGONISTS = [
   },
   {
     num: "03",
-    name: "DIVA ETHNO FUTURE SOUND",
+    name: "Мăнкун",
     role: "МУЗЫКА",
     image: "/images/diva.jpg",
     text: "Народные интонации встречаются с современной музыкальной аранжировкой.",
