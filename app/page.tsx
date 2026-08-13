@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { DonationProvider } from "@/components/site/donation-context"
 import { DonationModal } from "@/components/site/donation-modal"
 import { StickyCTA } from "@/components/site/sticky-cta"
@@ -21,7 +23,9 @@ export default function Page() {
   return (
     <DonationProvider>
       <main className="grain relative bg-linen">
+      <Suspense fallback={null}>
   <PaymentSuccess />
+</Suspense>
   <Hero />
   <Legend />
         <PresentDay />
