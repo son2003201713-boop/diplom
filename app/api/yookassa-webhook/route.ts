@@ -18,11 +18,12 @@ export async function POST(request: Request) {
     const shopId = process.env.YOOKASSA_SHOP_ID
     const secretKey = process.env.YOOKASSA_SECRET_KEY
     const databaseUrl =
-  process.env.DATABASE_URL ??
-  process.env.DATABASE_URL_UNPOOLED
+      process.env.DATABASE_URL ??
+      process.env.DATABASE_URL_UNPOOLED
 
     if (!shopId || !secretKey || !databaseUrl) {
       console.error("Missing environment variables")
+
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 },
@@ -74,13 +75,31 @@ export async function POST(request: Request) {
       )
     }
 
+    const donorName =
+      typeof payment.metadata?.donor_name === "string"
+        ? payment.metadata.donor_name
+        : null
+
     const sql = neon(databaseUrl)
 
-    // payment_id UNIQUE, поэтому один платёж нельзя посчитать дважды
     await sql`
-      INSERT INTO donations (payment_id, amount, status)
-      VALUES (${payment.id}, ${amount}, ${payment.status})
-      ON CONFLICT (payment_id) DO NOTHING
+      INSERT INTO donations (
+        payment_id,
+        amount,
+        status,
+        donor_name
+      )
+      VALUES (
+        ${payment.id},
+        ${amount},
+        ${payment.status},
+        ${donorName}
+      )
+      ON CONFLICT (payment_id) DO UPDATE
+      SET donor_name = COALESCE(
+        donations.donor_name,
+        EXCLUDED.donor_name
+      )
     `
 
     return NextResponse.json({ ok: true })

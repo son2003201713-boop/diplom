@@ -2,11 +2,18 @@ import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
   try {
-    const { amount } = await request.json()
+    const { amount, donorName } = await request.json()
 
     if (!amount || Number(amount) <= 0) {
       return NextResponse.json(
         { error: "Некорректная сумма" },
+        { status: 400 },
+      )
+    }
+
+    if (!donorName || typeof donorName !== "string") {
+      return NextResponse.json(
+        { error: "Укажите имя" },
         { status: 400 },
       )
     }
@@ -21,14 +28,13 @@ export async function POST(request: Request) {
       )
     }
 
-    const idempotenceKey = crypto.randomUUID()
     const auth = Buffer.from(`${shopId}:${secretKey}`).toString("base64")
 
     const response = await fetch("https://api.yookassa.ru/v3/payments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Idempotence-Key": idempotenceKey,
+        "Idempotence-Key": crypto.randomUUID(),
         Authorization: `Basic ${auth}`,
       },
       body: JSON.stringify({
@@ -36,13 +42,20 @@ export async function POST(request: Request) {
           value: Number(amount).toFixed(2),
           currency: "RUB",
         },
+
         confirmation: {
           type: "redirect",
           return_url:
             `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}?payment=success`,
         },
+
         capture: true,
+
         description: "Поддержка документального фильма «Три солнца»",
+
+        metadata: {
+          donor_name: donorName.trim(),
+        },
       }),
     })
 
@@ -50,6 +63,7 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       console.error("YooKassa error:", data)
+
       return NextResponse.json(
         { error: "Не удалось создать платёж", details: data },
         { status: response.status },
