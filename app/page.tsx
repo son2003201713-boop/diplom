@@ -2,6 +2,7 @@ import { DonationProvider } from "@/components/site/donation-context"
 import { DonationModal } from "@/components/site/donation-modal"
 import { StickyCTA } from "@/components/site/sticky-cta"
 import { Hero } from "@/components/site/hero"
+import { PaymentSuccess } from "@/components/site/payment-success"
 import { Legend } from "@/components/site/legend"
 import { PresentDay } from "@/components/site/present-day"
 import { Protagonists } from "@/components/site/protagonists"
@@ -20,8 +21,9 @@ export default function Page() {
   return (
     <DonationProvider>
       <main className="grain relative bg-linen">
-        <Hero />
-        <Legend />
+  <PaymentSuccess />
+  <Hero />
+  <Legend />
         <PresentDay />
         <Protagonists />
         <Manifesto />

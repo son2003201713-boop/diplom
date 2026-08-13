@@ -18,8 +18,8 @@ export function DonationModal() {
     FUNDRAISING.amounts[1],
   )
   const [custom, setCustom] = useState("")
+  const [fullName, setFullName] = useState("")
   const [bankOpen, setBankOpen] = useState(false)
-  const [paying, setPaying] = useState(false)
 
   const dialogRef = useRef<HTMLDivElement>(null)
 
@@ -27,6 +27,7 @@ export function DonationModal() {
     if (open) {
       setSelected(presetAmount ?? FUNDRAISING.amounts[1])
       setCustom("")
+      setFullName("")
       setBankOpen(presetAmount != null)
     }
   }, [open, presetAmount])
@@ -52,38 +53,6 @@ export function DonationModal() {
   if (!open) return null
 
   const activeAmount = custom ? Number(custom) : selected
-
-  async function handlePayment() {
-    if (!activeAmount || activeAmount <= 0) return
-
-    try {
-      setPaying(true)
-
-      const response = await fetch("/api/payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: activeAmount,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok || !data.confirmationUrl) {
-        alert("Не удалось открыть оплату. Попробуйте ещё раз.")
-        return
-      }
-
-      window.location.href = data.confirmationUrl
-    } catch (error) {
-      console.error(error)
-      alert("Произошла ошибка. Попробуйте ещё раз.")
-    } finally {
-      setPaying(false)
-    }
-  }
 
   const bankRows: { label: string; value: string }[] = [
     { label: "Получатель", value: BANK.recipient },
@@ -131,8 +100,8 @@ export function DonationModal() {
               Поддержать «Три солнца»
             </h2>
 
-            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground text-pretty">
-              Выберите сумму. Даже небольшая поддержка помогает съёмкам.
+            <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+              Выберите сумму и укажите имя.
             </p>
           </div>
 
@@ -147,82 +116,139 @@ export function DonationModal() {
         </div>
 
         <div className="overflow-y-auto px-6 pb-6">
-          <div className="grid grid-cols-3 gap-2.5">
-            {FUNDRAISING.amounts.map((amount) => {
-              const active = !custom && selected === amount
 
-              return (
-                <button
-                  key={amount}
-                  type="button"
-                  onClick={() => {
-                    setSelected(amount)
-                    setCustom("")
-                  }}
-                  className={cn(
-                    "flex flex-col items-center justify-center rounded-md border py-3.5 text-sm font-semibold transition-colors",
-                    active
-                      ? "border-thread bg-thread text-linen"
-                      : "border-border bg-card text-ink hover:border-thread",
-                  )}
-                >
-                  {formatAmount(amount)} ₽
-                </button>
-              )
-            })}
-          </div>
+          {/* Форма ЮKassa */}
+          <form
+            action="https://yookassa.ru/integration/simplepay/payment"
+            method="post"
+            acceptCharset="utf-8"
+          >
+            {/* ФИО */}
+            <div className="mb-4">
+              <label
+                htmlFor="donor-name"
+                className="mb-2 block text-xs font-semibold uppercase tracking-[0.14em] text-ink"
+              >
+                Ваше имя
+              </label>
 
-          <div className="mt-2.5">
-            <label className="sr-only" htmlFor="custom-amount">
-              Другая сумма
-            </label>
-
-            <div
-              className={cn(
-                "flex items-center gap-2 rounded-md border px-4 py-3 transition-colors",
-                custom ? "border-thread" : "border-border",
-              )}
-            >
               <input
-                id="custom-amount"
-                inputMode="numeric"
-                pattern="[0-9]*"
-                placeholder="ДРУГАЯ СУММА"
-                value={custom}
-                onChange={(e) =>
-                  setCustom(e.target.value.replace(/[^0-9]/g, ""))
-                }
-                className="w-full bg-transparent text-sm font-semibold uppercase tracking-[0.08em] text-ink outline-none placeholder:text-muted-foreground placeholder:tracking-[0.12em]"
+                id="donor-name"
+                name="custName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="ФИО"
+                required
+                className="w-full rounded-md border border-border bg-card px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-muted-foreground focus:border-thread"
               />
 
-              {custom && (
-                <span className="text-sm font-semibold text-ink">₽</span>
-              )}
-            </div>
-          </div>
-
-          {activeAmount != null &&
-            activeAmount >= FUNDRAISING.creditThreshold && (
-              <p className="mt-3 rounded-md border border-gold/50 bg-gold/10 px-4 py-3 text-xs leading-relaxed text-ink">
-                Спасибо! Поддержка от{" "}
-                {formatAmount(FUNDRAISING.creditThreshold)} ₽ — мы укажем ваше
-                имя в благодарностях в финальных титрах фильма.
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                Имя поможет нам найти вашу поддержку. Если вы хотите остаться
+                анонимным, напишите «Анонимно».
               </p>
-            )}
+            </div>
 
-          <button
-            type="button"
-            onClick={handlePayment}
-            disabled={!activeAmount || paying}
-            className="mt-5 w-full rounded-md bg-thread px-5 py-4 text-sm font-semibold uppercase tracking-[0.14em] text-linen transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {paying
-              ? "Переходим к оплате..."
-              : activeAmount
+            {/* Выбор суммы */}
+            <div className="grid grid-cols-3 gap-2.5">
+              {FUNDRAISING.amounts.map((amount) => {
+                const active = !custom && selected === amount
+
+                return (
+                  <button
+                    key={amount}
+                    type="button"
+                    onClick={() => {
+                      setSelected(amount)
+                      setCustom("")
+                    }}
+                    className={cn(
+                      "flex flex-col items-center justify-center rounded-md border py-3.5 text-sm font-semibold transition-colors",
+                      active
+                        ? "border-thread bg-thread text-linen"
+                        : "border-border bg-card text-ink hover:border-thread",
+                    )}
+                  >
+                    {formatAmount(amount)} ₽
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Другая сумма */}
+            <div className="mt-2.5">
+              <label className="sr-only" htmlFor="custom-amount">
+                Другая сумма
+              </label>
+
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-md border px-4 py-3 transition-colors",
+                  custom ? "border-thread" : "border-border",
+                )}
+              >
+                <input
+                  id="custom-amount"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder="ДРУГАЯ СУММА"
+                  value={custom}
+                  onChange={(e) =>
+                    setCustom(e.target.value.replace(/[^0-9]/g, ""))
+                  }
+                  className="w-full bg-transparent text-sm font-semibold uppercase tracking-[0.08em] text-ink outline-none placeholder:text-muted-foreground"
+                />
+
+                {custom && (
+                  <span className="text-sm font-semibold text-ink">₽</span>
+                )}
+              </div>
+            </div>
+
+            {/* Именно это значение получит ЮKassa */}
+            <input
+              name="sum"
+              type="hidden"
+              value={activeAmount ?? ""}
+            />
+
+            <input
+              name="customerNumber"
+              type="hidden"
+              value="Если вы поддержали нас суммой более 5000 мы укажем вас в титрах, пожалуйста, напишите свое ФИО."
+            />
+
+            <input
+              name="shopId"
+              type="hidden"
+              value="1432391"
+            />
+
+            {/* Благодарности в титрах */}
+            {activeAmount != null &&
+              activeAmount >= FUNDRAISING.creditThreshold && (
+                <div className="mt-3 rounded-md border border-gold/50 bg-gold/10 px-4 py-3">
+                  <p className="text-xs leading-relaxed text-ink">
+                    Поддержка от{" "}
+                    {formatAmount(FUNDRAISING.creditThreshold)} ₽ — мы укажем
+                    ваше имя в благодарностях в финальных титрах фильма.
+                  </p>
+                </div>
+              )}
+
+            {/* Главная кнопка ЮKassa */}
+            <button
+              type="submit"
+              disabled={!activeAmount || !fullName.trim()}
+              className="mt-5 w-full rounded-md bg-thread px-5 py-4 text-sm font-semibold uppercase tracking-[0.14em] text-linen transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {activeAmount
                 ? `Поддержать на ${formatAmount(activeAmount)} ₽`
                 : "Выберите сумму"}
-          </button>
+            </button>
+          </form>
 
+          {/* QR */}
           <div className="mt-4 rounded-md border border-border bg-card px-4 py-5">
             <div className="flex flex-col items-center text-center">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ink">
@@ -230,7 +256,7 @@ export function DonationModal() {
               </p>
 
               <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">
-                Отсканируйте QR-код камерой телефона, чтобы перейти к переводу.
+                Или отсканируйте QR-код камерой телефона.
               </p>
 
               <div className="mt-4 rounded-md bg-white p-3">
@@ -242,11 +268,12 @@ export function DonationModal() {
               </div>
 
               <p className="mt-3 text-xs text-muted-foreground">
-                Если QR-код не подходит, ниже можно перевести по реквизитам.
+                При переводе по QR имя лучше сообщить нам отдельно.
               </p>
             </div>
           </div>
 
+          {/* Реквизиты */}
           <div className="mt-4 overflow-hidden rounded-md border border-border">
             <button
               type="button"
@@ -285,7 +312,7 @@ export function DonationModal() {
                   ))}
                 </dl>
 
-                <p className="mt-3 text-xs leading-relaxed text-muted-foreground text-pretty">
+                <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                   При переводе по реквизитам, пожалуйста, укажите назначение
                   платежа без изменений.
                 </p>
@@ -318,15 +345,13 @@ export function DonationModal() {
               <span className="font-semibold text-ink">
                 Если страница оплаты не открывается:
               </span>{" "}
-              некоторые браузеры могут показывать предупреждение безопасности
-              при переходе к российским сервисам. В таком случае попробуйте
-              открыть оплату в Яндекс Браузере или выберите перевод по QR-коду.
+              попробуйте открыть сайт в Яндекс Браузере или воспользуйтесь
+              переводом по QR-коду.
             </p>
           </div>
 
           <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground">
-            Регистрация не требуется. Каждый перевод приближает один из наших
-            съёмочных дней.
+            Каждый перевод приближает один из наших съёмочных дней.
           </p>
         </div>
       </div>
