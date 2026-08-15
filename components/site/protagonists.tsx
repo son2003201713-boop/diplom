@@ -77,6 +77,16 @@ export function Protagonists() {
                           <p className="mt-2 text-xs font-semibold uppercase tracking-[0.22em] text-thread">
                             {p.role}
                           </p>
+                          {p.instagram && (
+  <a
+    href={p.instagram}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="mt-3 inline-flex text-sm font-semibold uppercase tracking-[0.18em] text-thread transition-all hover:opacity-70"
+  >
+    Соцсеть ↗
+  </a>
+)}
                         </div>
                       </div>
 
