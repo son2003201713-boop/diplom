@@ -1,4 +1,3 @@
-import { MetrikaConsent } from "@/components/site/metrika-consent"
 import { Analytics } from "@vercel/analytics/next"
 import type { Metadata, Viewport } from "next"
 import { Playfair_Display, Inter } from "next/font/google"
@@ -49,8 +48,6 @@ export default function RootLayout({
     >
       <body className="antialiased font-sans">
         {children}
-
-        <MetrikaConsent />
 
         {process.env.NODE_ENV === "production" && <Analytics />}
       </body>
