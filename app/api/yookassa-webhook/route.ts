@@ -17,6 +17,7 @@ export async function POST(request: Request) {
 
     const shopId = process.env.YOOKASSA_SHOP_ID
     const secretKey = process.env.YOOKASSA_SECRET_KEY
+
     const databaseUrl =
       process.env.DATABASE_URL ??
       process.env.DATABASE_URL_UNPOOLED
@@ -30,8 +31,9 @@ export async function POST(request: Request) {
       )
     }
 
-    // Проверяем настоящий статус платежа напрямую у ЮKassa
-    const auth = Buffer.from(`${shopId}:${secretKey}`).toString("base64")
+    const auth = Buffer.from(
+      `${shopId}:${secretKey}`,
+    ).toString("base64")
 
     const paymentResponse = await fetch(
       `https://api.yookassa.ru/v3/payments/${paymentId}`,
@@ -75,9 +77,17 @@ export async function POST(request: Request) {
       )
     }
 
+    const donorConsent =
+      payment.metadata?.donor_consent === "true"
+
+    const creditsConsent =
+      payment.metadata?.credits_consent === "true"
+
     const donorName =
-      typeof payment.metadata?.donor_name === "string"
-        ? payment.metadata.donor_name
+      donorConsent &&
+      typeof payment.metadata?.donor_name === "string" &&
+      payment.metadata.donor_name.trim()
+        ? payment.metadata.donor_name.trim()
         : null
 
     const sql = neon(databaseUrl)
@@ -87,19 +97,24 @@ export async function POST(request: Request) {
         payment_id,
         amount,
         status,
-        donor_name
+        donor_name,
+        donor_consent,
+        credits_consent
       )
       VALUES (
         ${payment.id},
         ${amount},
         ${payment.status},
-        ${donorName}
+        ${donorName},
+        ${donorConsent},
+        ${creditsConsent}
       )
+
       ON CONFLICT (payment_id) DO UPDATE
-      SET donor_name = COALESCE(
-        donations.donor_name,
-        EXCLUDED.donor_name
-      )
+      SET
+        donor_name = EXCLUDED.donor_name,
+        donor_consent = EXCLUDED.donor_consent,
+        credits_consent = EXCLUDED.credits_consent
     `
 
     return NextResponse.json({ ok: true })

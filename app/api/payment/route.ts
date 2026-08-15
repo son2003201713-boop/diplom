@@ -2,7 +2,12 @@ import { NextResponse } from "next/server"
 
 export async function POST(request: Request) {
   try {
-    const { amount, donorName } = await request.json()
+    const {
+      amount,
+      donorName,
+      donorConsent,
+      creditsConsent,
+    } = await request.json()
 
     if (!amount || Number(amount) <= 0) {
       return NextResponse.json(
@@ -11,9 +16,15 @@ export async function POST(request: Request) {
       )
     }
 
-    if (!donorName || typeof donorName !== "string") {
+    const cleanName =
+      typeof donorName === "string"
+        ? donorName.trim()
+        : ""
+
+    // Если имя введено, должно быть согласие на его обработку
+    if (cleanName && donorConsent !== true) {
       return NextResponse.json(
-        { error: "Укажите имя" },
+        { error: "Нужно согласие на обработку ФИО" },
         { status: 400 },
       )
     }
@@ -28,36 +39,56 @@ export async function POST(request: Request) {
       )
     }
 
-    const auth = Buffer.from(`${shopId}:${secretKey}`).toString("base64")
+    const auth = Buffer.from(
+      `${shopId}:${secretKey}`,
+    ).toString("base64")
 
-    const response = await fetch("https://api.yookassa.ru/v3/payments", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Idempotence-Key": crypto.randomUUID(),
-        Authorization: `Basic ${auth}`,
+    const response = await fetch(
+      "https://api.yookassa.ru/v3/payments",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotence-Key": crypto.randomUUID(),
+          Authorization: `Basic ${auth}`,
+        },
+
+        body: JSON.stringify({
+          amount: {
+            value: Number(amount).toFixed(2),
+            currency: "RUB",
+          },
+
+          confirmation: {
+            type: "redirect",
+            return_url:
+              `${
+                process.env.NEXT_PUBLIC_SITE_URL ??
+                "http://localhost:3000"
+              }?payment=success`,
+          },
+
+          capture: true,
+
+          description:
+            "Поддержка документального фильма «Три солнца»",
+
+          metadata: {
+            donor_name: cleanName,
+
+            donor_consent:
+              donorConsent === true
+                ? "true"
+                : "false",
+
+            credits_consent:
+              creditsConsent === true
+                ? "true"
+                : "false",
+          },
+        }),
       },
-      body: JSON.stringify({
-        amount: {
-          value: Number(amount).toFixed(2),
-          currency: "RUB",
-        },
-
-        confirmation: {
-          type: "redirect",
-          return_url:
-            `${process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"}?payment=success`,
-        },
-
-        capture: true,
-
-        description: "Поддержка документального фильма «Три солнца»",
-
-        metadata: {
-          donor_name: donorName.trim(),
-        },
-      }),
-    })
+    )
 
     const data = await response.json()
 
@@ -65,13 +96,20 @@ export async function POST(request: Request) {
       console.error("YooKassa error:", data)
 
       return NextResponse.json(
-        { error: "Не удалось создать платёж", details: data },
-        { status: response.status },
+        {
+          error: "Не удалось создать платёж",
+          details: data,
+        },
+        {
+          status: response.status,
+        },
       )
     }
 
     return NextResponse.json({
-      confirmationUrl: data.confirmation?.confirmation_url,
+      confirmationUrl:
+        data.confirmation?.confirmation_url,
+
       paymentId: data.id,
     })
   } catch (error) {
