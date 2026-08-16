@@ -123,21 +123,6 @@ export function SunSymbol({
             L38 76
           "
         />
-
-        {/* Маленькие декоративные штрихи */}
-        <g strokeWidth="3">
-          <path d="M82 42 L88 48" />
-          <path d="M118 42 L112 48" />
-
-          <path d="M158 82 L152 88" />
-          <path d="M158 118 L152 112" />
-
-          <path d="M118 158 L112 152" />
-          <path d="M82 158 L88 152" />
-
-          <path d="M42 118 L48 112" />
-          <path d="M42 82 L48 88" />
-        </g>
       </g>
     </svg>
   )
