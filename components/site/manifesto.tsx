@@ -3,7 +3,7 @@ import { Reveal } from "./reveal"
 
 export function Manifesto() {
   return (
-    <section className="relative overflow-hidden bg-thread text-linen">
+    <section id="about" className="relative overflow-hidden bg-thread text-linen">
       <div className="relative mx-auto max-w-4xl px-5 py-32 text-center sm:py-48">
         <Reveal>
           <h2 className="font-serif text-[clamp(2.5rem,9vw,6rem)] font-medium leading-[0.95] text-linen text-balance">

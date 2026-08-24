@@ -1,3 +1,4 @@
+import { SiteNav } from "@/components/site/site-nav"
 import { Suspense } from "react"
 
 import { DonationProvider } from "@/components/site/donation-context"
@@ -22,6 +23,7 @@ import { Footer } from "@/components/site/footer"
 export default function Page() {
   return (
     <DonationProvider>
+      <SiteNav />
       <main className="grain relative bg-linen">
       <Suspense fallback={null}>
   <PaymentSuccess />

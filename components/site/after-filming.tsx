@@ -3,7 +3,7 @@ import { Reveal } from "./reveal"
 
 export function AfterFilming() {
   return (
-    <section className="relative bg-linen">
+    <section id="after" className="relative bg-linen">
       <div className="mx-auto max-w-4xl px-5 py-28 sm:py-36">
         <Reveal className="mb-14 text-center">
           <h2 className="font-serif text-3xl leading-tight text-ink sm:text-5xl text-balance">

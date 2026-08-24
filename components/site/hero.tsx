@@ -23,7 +23,7 @@ export function Hero() {
   const parallax = Math.min(scrollY, 700)
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden bg-linen">
+    <section id="top" className="relative min-h-[100svh] overflow-hidden bg-linen">
       {/* Верхняя строка */}
       <header className="absolute left-0 right-0 top-0 z-30 flex items-center justify-between px-5 pt-6 sm:px-10 sm:pt-8">
         <span className="text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-ink/70 sm:text-xs sm:tracking-[0.28em]">

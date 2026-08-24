@@ -12,6 +12,7 @@ function fmt(n: number) {
 }
 
 export function Fundraising() {
+  const OFFLINE_DONATIONS = 12000
   const [raised, setRaised] = useState(FUNDRAISING.raised)
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export function Fundraising() {
         const data = await response.json()
 
         if (typeof data.raised === "number") {
-          setRaised(data.raised)
+          setRaised(data.raised + OFFLINE_DONATIONS)
         }
       } catch (error) {
         console.error("Не удалось загрузить сумму сбора:", error)
