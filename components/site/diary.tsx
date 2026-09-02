@@ -3,7 +3,7 @@ import { Reveal } from "./reveal"
 export function Diary() {
   return (
     <section id="diary" className="relative bg-linen">
-      <div className="mx-auto max-w-3xl px-5 py-24 text-center sm:py-32">
+      <div className="mx-auto max-w-6xl px-5 py-24 text-center sm:py-32">
         <Reveal>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-thread">
             Дневник
@@ -19,41 +19,88 @@ export function Diary() {
           </p>
         </Reveal>
 
-        <Reveal delay={120} className="mt-10">
-          <div className="flex flex-wrap items-center justify-center gap-x-11 gap-y-3 font-serif text-xl italic text-thread sm:text-2xl">
+        <Reveal delay={120} className="mt-14">
+          <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-3">
+            {/* Telegram */}
             <a
               href="https://t.me/threesunsdoc"
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-opacity hover:opacity-60"
+              className="group block"
             >
-              Дневник фильма
+              <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
+                <img
+                  src="/images/telegram.png"
+                  alt="Дневник фильма «Три солнца» в Telegram"
+                  className="h-auto w-full"
+                />
+              </div>
+
+              <div className="mt-4 flex items-center justify-between px-1">
+                <span className="font-serif text-xl italic text-thread">
+                  Дневник фильма
+                </span>
+
+                <span className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-ink/45 transition-colors group-hover:text-thread">
+                  Telegram ↗
+                </span>
+              </div>
             </a>
 
-            <span className="text-ink/30">·</span>
-
+            {/* Instagram */}
             <a
               href="https://www.instagram.com/threesunsdoc/"
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-opacity hover:opacity-60"
+              className="group block"
             >
-              Фото-дневник
+              <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
+                <img
+                  src="/images/instagram.png"
+                  alt="Фото-дневник фильма «Три солнца»"
+                  className="h-auto w-full"
+                />
+              </div>
+
+              <div className="mt-4 flex items-center justify-between px-1">
+                <span className="font-serif text-xl italic text-thread">
+                  Фото-дневник
+                </span>
+
+                <span className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-ink/45 transition-colors group-hover:text-thread">
+                  Картинки ↗
+                </span>
+              </div>
             </a>
 
-            <span className="text-ink/30">·</span>
-
+            {/* TikTok */}
             <a
               href="https://www.tiktok.com/@threesunsdoc"
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-opacity hover:opacity-60"
+              className="group block"
             >
-              Видео-дневник
+              <div className="overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl">
+                <img
+                  src="/images/tiktok.PNG"
+                  alt="Видео-дневник фильма «Три солнца» в TikTok"
+                  className="h-auto w-full"
+                />
+              </div>
+
+              <div className="mt-4 flex items-center justify-between px-1">
+                <span className="font-serif text-xl italic text-thread">
+                  Видео-дневник
+                </span>
+
+                <span className="text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-ink/45 transition-colors group-hover:text-thread">
+                  TikTok ↗
+                </span>
+              </div>
             </a>
           </div>
 
-          <p className="mt-4 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+          <p className="mt-8 text-xs uppercase tracking-[0.16em] text-muted-foreground">
             @threesunsdoc
           </p>
         </Reveal>

@@ -12,7 +12,7 @@ function fmt(n: number) {
 }
 
 export function Fundraising() {
-  const OFFLINE_DONATIONS = 12000
+  const OFFLINE_DONATIONS = 17800
   const [raised, setRaised] = useState(FUNDRAISING.raised)
 
   useEffect(() => {
