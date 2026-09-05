@@ -2,19 +2,21 @@ import { FUNDRAISING } from "@/lib/content"
 
 export function EmbroideryProgress({
   raised = FUNDRAISING.raised,
+  partnerSupport = 80906,
+  originalBudget = 450000,
 }: {
   raised?: number
+  partnerSupport?: number
+  originalBudget?: number
 }) {
-  const ratio = Math.max(
-    0,
-    Math.min(1, raised / FUNDRAISING.goal),
-  )
-
   const cols = 24
   const rows = 6
-  const total = cols * rows
 
-  const cells: { x: number; y: number; on: boolean }[] = []
+  const cells: {
+    x: number
+    y: number
+    on: boolean
+  }[] = []
 
   for (let c = 0; c < cols; c++) {
     for (let r = 0; r < rows; r++) {
@@ -32,7 +34,32 @@ export function EmbroideryProgress({
     }
   }
 
-  const filledCount = Math.round(ratio * total)
+  // Берём только настоящие крестики орнамента
+  const motifCells = cells.filter((cell) => cell.on)
+  const motifCount = motifCells.length
+
+  // Красные крестики идут СЛЕВА
+  const raisedCount = Math.round(
+    (raised / originalBudget) * motifCount,
+  )
+
+  // Тёмные крестики идут СПРАВА
+  const partnerCount = Math.round(
+    (partnerSupport / originalBudget) * motifCount,
+  )
+
+  // Определяем порядковый номер каждого крестика
+  // слева направо
+  const motifIndex = new Map<string, number>()
+
+  motifCells
+    .sort((a, b) => {
+      if (a.x !== b.x) return a.x - b.x
+      return a.y - b.y
+    })
+    .forEach((cell, index) => {
+      motifIndex.set(`${cell.x}-${cell.y}`, index)
+    })
 
   const unit = 20
   const w = cols * unit
@@ -44,23 +71,53 @@ export function EmbroideryProgress({
         viewBox={`0 0 ${w} ${h}`}
         className="w-full"
         role="img"
-        aria-label={`Собрано ${raised.toLocaleString("ru-RU")} из ${FUNDRAISING.goal.toLocaleString("ru-RU")} рублей`}
+        aria-label={`Собрано ${raised.toLocaleString(
+          "ru-RU",
+        )} рублей. Помощь друзей и партнёров — ${partnerSupport.toLocaleString(
+          "ru-RU",
+        )} рублей.`}
       >
         {cells.map((cell, i) => {
           const cx = cell.x * unit + unit / 2
           const cy = cell.y * unit + unit / 2
-          const filled = i < filledCount && cell.on
 
           if (cell.on) {
             const s = 5
 
+            const index =
+              motifIndex.get(`${cell.x}-${cell.y}`) ?? 0
+
+            // Красный движется слева направо →
+            const raisedFilled =
+              index < raisedCount
+
+            // Тёмный движется справа налево ←
+            const partnerFilled =
+              index >= motifCount - partnerCount
+
+            let stroke = "var(--border)"
+            let strokeWidth = 1
+            let opacity = 0.5
+
+            if (partnerFilled) {
+              stroke = "var(--ink)"
+              strokeWidth = 2.3
+              opacity = 0.5
+            }
+
+            if (raisedFilled) {
+              stroke = "var(--thread)"
+              strokeWidth = 2.4
+              opacity = 1
+            }
+
             return (
               <g
                 key={i}
-                stroke={filled ? "var(--thread)" : "var(--border)"}
-                strokeWidth={filled ? 2.4 : 1}
+                stroke={stroke}
+                strokeWidth={strokeWidth}
                 strokeLinecap="round"
-                opacity={filled ? 1 : 0.5}
+                opacity={opacity}
               >
                 <line
                   x1={cx - s}
@@ -68,6 +125,7 @@ export function EmbroideryProgress({
                   x2={cx + s}
                   y2={cy + s}
                 />
+
                 <line
                   x1={cx - s}
                   y1={cy + s}

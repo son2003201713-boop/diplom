@@ -12,8 +12,8 @@ export const FILM = {
 }
 
 export const FUNDRAISING = {
-  goal: 450000,
-  raised: 7065,
+  goal: 369094,
+  raised: 0,
   currency: "₽",
   amounts: [500, 1000, 3000, 5000, 10000],
   creditThreshold: 5000,
@@ -105,7 +105,7 @@ export const PRODUCTION_FACTS = [
 ]
 
 export const MONEY_USAGE = [
-  { title: "ЛОКАЦИИ", text: "Аренда пространств для съёмок." },
+  { title: "Транспорт и логистика", text: "Переезды команды и техники между съёмочными точками, бензин, такси, трансферы и дорога во время экспедиции." },
   {
     title: "ДОПОЛНИТЕЛЬНАЯ ТЕХНИКА",
     text: "Оборудование, которого нет в доступном комплекте ВГИКа.",

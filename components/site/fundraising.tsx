@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+
 import { FUNDRAISING, MONEY_USAGE } from "@/lib/content"
 import { EmbroideryProgress } from "./embroidery-progress"
 import { SupportButton } from "./support-button"
@@ -12,7 +13,19 @@ function fmt(n: number) {
 }
 
 export function Fundraising() {
+  // Донаты, которые были получены не через сайт
   const OFFLINE_DONATIONS = 17800
+
+  // Изначальный бюджет фильма
+  const ORIGINAL_BUDGET = 450000
+
+  // Сколько удалось закрыть благодаря скидкам,
+  // технике друзей и помощи партнёров
+  const PARTNER_SUPPORT = 80906
+
+  // После этой помощи столько нужно было собрать деньгами
+  const FUNDRAISING_GOAL = 369094
+
   const [raised, setRaised] = useState(FUNDRAISING.raised)
 
   useEffect(() => {
@@ -30,21 +43,32 @@ export function Fundraising() {
           setRaised(data.raised + OFFLINE_DONATIONS)
         }
       } catch (error) {
-        console.error("Не удалось загрузить сумму сбора:", error)
+        console.error(
+          "Не удалось загрузить сумму сбора:",
+          error,
+        )
       }
     }
 
+    // Загружаем сумму сразу
     loadRaised()
 
+    // И проверяем новые донаты каждые 30 секунд
     const interval = setInterval(loadRaised, 30000)
 
     return () => clearInterval(interval)
   }, [])
 
+  // Сколько денег осталось собрать прямо сейчас
+  const remaining = Math.max(
+    FUNDRAISING_GOAL - raised,
+    0,
+  )
+
   return (
     <section id="support" className="relative bg-linen">
       <div className="mx-auto max-w-5xl px-5 py-28 sm:py-36">
-        {/* Heading + framing */}
+        {/* Heading */}
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="font-serif text-3xl leading-tight text-ink sm:text-5xl text-balance">
             Помогите нам снять «Три солнца»
@@ -57,21 +81,41 @@ export function Fundraising() {
           </p>
         </Reveal>
 
-        {/* Goal + achievability */}
+        {/* Remaining */}
         <Reveal
           delay={100}
           className="mx-auto mt-16 max-w-2xl text-center"
         >
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-thread">
-            Цель сбора
+            Осталось собрать
           </p>
 
           <p className="mt-3 font-serif text-6xl leading-none text-thread sm:text-8xl">
-            {fmt(FUNDRAISING.goal)} <Ruble />
+            {fmt(remaining)} <Ruble />
           </p>
 
+          {/* История сокращения бюджета */}
+          <div className="mx-auto mt-8 max-w-xl rounded-sm border border-ink/10 bg-card/60 px-6 py-6">
+            <p className="text-sm leading-relaxed text-foreground/75">
+              Изначально для производства нам требовалось{" "}
+              <span className="font-semibold text-ink">
+                {fmt(ORIGINAL_BUDGET)} ₽
+              </span>
+              .
+            </p>
+
+            <p className="mt-2 text-sm leading-relaxed text-foreground/75">
+              Благодаря скидкам на аренду и технике, которой с нами
+              поделились друзья и партнёры, нам уже помогли сократить бюджет на{" "}
+              <span className="font-semibold text-ink">
+                {fmt(PARTNER_SUPPORT)} ₽
+              </span>
+              .
+            </p>
+          </div>
+
           <p className="mt-8 text-base leading-relaxed text-foreground/75 text-pretty">
-            Эта сумма складывается из множества небольших поддержек.
+            Остальное складывается из множества небольших поддержек.
           </p>
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-serif text-xl text-ink sm:text-2xl">
@@ -89,8 +133,11 @@ export function Fundraising() {
           </p>
         </Reveal>
 
-        {/* Progress embroidery */}
-        <Reveal delay={150} className="mx-auto mt-16 max-w-3xl">
+        {/* Progress */}
+        <Reveal
+          delay={150}
+          className="mx-auto mt-16 max-w-3xl"
+        >
           <div className="mb-4 flex items-end justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
@@ -103,14 +150,37 @@ export function Fundraising() {
             </div>
 
             <p className="text-right text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              из {fmt(FUNDRAISING.goal)} <Ruble />
+              из {fmt(FUNDRAISING_GOAL)} <Ruble />
             </p>
           </div>
 
-          <EmbroideryProgress raised={raised} />
+          <EmbroideryProgress
+            raised={raised}
+            partnerSupport={PARTNER_SUPPORT}
+            originalBudget={ORIGINAL_BUDGET}
+          />
 
-          <p className="mt-3 text-center text-xs leading-relaxed text-muted-foreground text-pretty">
-            С каждой поддержкой красный орнамент вышивается дальше.
+          {/* Легенда */}
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span className="size-2 rotate-45 bg-thread" />
+              <span>Собрано вами</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="size-2 rotate-45 bg-ink/45" />
+              <span>Нам пошли навстречу</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="size-2 rotate-45 border border-border" />
+              <span>Ещё нужно</span>
+            </div>
+          </div>
+
+          <p className="mt-4 text-center text-xs leading-relaxed text-muted-foreground text-pretty">
+            Красный орнамент растёт благодаря вашим переводам, а с другой
+            стороны ему навстречу идёт помощь друзей и партнёров фильма.
           </p>
         </Reveal>
 
