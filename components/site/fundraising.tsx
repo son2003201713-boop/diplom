@@ -14,7 +14,7 @@ function fmt(n: number) {
 
 export function Fundraising() {
   // Донаты, которые были получены не через сайт
-  const OFFLINE_DONATIONS = 17800
+  const OFFLINE_DONATIONS = 21700
 
   // Изначальный бюджет фильма
   const ORIGINAL_BUDGET = 450000
